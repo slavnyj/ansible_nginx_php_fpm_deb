@@ -1,0 +1,51 @@
+---
+# tasks file for nginx_deb
+- name: Update apt cache and install Nginx
+  apt:
+    name: nginx
+    state: latest
+    update_cache: yes
+  tags:
+    - nginx
+
+- name: Apply Nginx template
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/default
+  tags:
+    - nginx
+  notify: restart nginx
+
+- name: Enable new site
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+    force: yes
+  tags:
+    - nginx
+  notify: restart nginx
+
+- name: Allow all access to tcp port 80
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+  tags:
+    - nginx
+
+- name: Create root directory
+  file: 
+    path: "{{ document_root }}/{{ app_root }}"
+    state: directory
+    mode: 0755
+  tags:
+    - nginx    
+
+- name: Copy website files to the server's document root
+  template:
+    src: index.php.j2
+    dest: "{{ document_root }}/{{ app_root }}/index.php"
+    mode: preserve
+  tags:
+    - nginx

@@ -1,0 +1,4 @@
+php_version: 7.4
+server_name: "{{ ansible_default_ipv4.address }}"
+document_root: /opt/nginx/ansible
+app_root: demo_site

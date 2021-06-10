@@ -1,0 +1,30 @@
+---
+# tasks file for php_fpm_deb
+- name: Install PHP {{php_version}} PPA Repo
+  apt_repository:
+   repo: 'ppa:ondrej/php'
+  tags:
+    - php
+
+- name: Install PHP {{php_version}}
+  apt: 
+    name: "php{{php_version}}"
+    state: latest
+  tags:
+    - php      
+  
+- name: Install PHP packages
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - "php{{php_version}}-curl"
+    - "php{{php_version}}-fpm"
+    - "php{{php_version}}-intl"
+    - "php{{php_version}}-mysql"
+    - "php{{php_version}}-xml"
+    - "php{{php_version}}-mbstring"
+  tags:
+    - php          
+  notify: Restart PHP-FPM
